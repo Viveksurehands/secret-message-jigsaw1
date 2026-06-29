@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const stage = new Konva.Stage({ container: 'canvas-container', width: cw, height: ch });
         
-        // Layer 1: Background Secure Text Canvas Node
+        // Layer 1: Dedicated Background Text Layer (Isolated at the bottom)
         const bgLayer = new Konva.Layer();
         const secretText = new Konva.Text({
             text: secretMessage,
@@ -48,24 +48,35 @@ document.addEventListener("DOMContentLoaded", () => {
         bgLayer.add(secretText);
         stage.add(bgLayer);
 
-        // Layer 2: Blackout Blur Mask Layer blocking early text leaks
+        // Layer 2: Blackout Mask Layer. Custom scene rendering prevents clipping bugs.
         const maskLayer = new Konva.Layer();
-        const blurMask = new Konva.Rect({
+        
+        // Track unmasked squares (initially empty)
+        const solvedBlocks = [];
+
+        const maskShape = new Konva.Shape({
             x: 0, y: 0, width: cw, height: ch,
-            fill: '#0f172a',
-            opacity: 0.98
+            sceneFunc: function(context, shape) {
+                // Fill the background solid dark color
+                context.fillStyle = '#0f172a';
+                context.fillRect(0, 0, cw, ch);
+
+                // Clear out blocks where correct puzzle items are snapped in
+                solvedBlocks.forEach(block => {
+                    context.clearRect(block.x - 2, block.y - 2, block.w + 4, block.h + 4);
+                });
+            }
         });
-        maskLayer.add(blurMask);
+        maskLayer.add(maskShape);
         stage.add(maskLayer);
 
-        // Layer 3: Main Piece Gameplay interaction plane
+        // Layer 3: Interactive Jigsaw Pieces
         const pieceLayer = new Konva.Layer();
         stage.add(pieceLayer);
 
         const grid = calculateGrid(pieceCount);
         const pw = cw / grid.cols; const ph = ch / grid.rows;
 
-        // Establish relative interlocking tab-blank grid profiles
         const xEdges = Array.from({ length: grid.rows }, () => Array(grid.cols - 1).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
         const yEdges = Array.from({ length: grid.rows - 1 }, () => Array(grid.cols).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
 
@@ -85,7 +96,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     draggable: true,
                     stroke: '#475569',
                     strokeWidth: 1,
-                    // Vector-path implementation drawing interlocking puzzle tabs
                     sceneFunc: function(context, shape) {
                         context.beginPath();
                         context.moveTo(0, 0);
@@ -122,8 +132,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         piece.moveToBottom();
                         pieceLayer.draw();
 
-                        // Punch an exact window out of the blur mask overlay right beneath the locked piece coordinates
-                        revealMaskBlock(maskLayer, tx, ty, pw, ph);
+                        // Register the solved position coordinate and redraw mask context window safely
+                        solvedBlocks.push({ x: tx, y: ty, w: pw, h: ph });
+                        maskLayer.draw();
                         
                         checkGameCompletion(pieceLayer);
                     }
@@ -154,16 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.bezierCurveTo(p4x + (dx*0.05), p4y + (dy*0.05), p6x - (dx*0.05), p6y - (dy*0.05), p5x + nx * size * 1.8, p5y + ny * size * 1.8);
         ctx.bezierCurveTo(p6x, p6y, p7x, p7y, p8x, p8y);
         ctx.lineTo(x2, y2);
-    }
-
-    function revealMaskBlock(maskLayer, x, y, w, h) {
-        const cutout = new Konva.Rect({
-            x: x - 2, y: y - 2, width: w + 4, height: h + 4,
-            fill: '#000000',
-            globalCompositeOperation: 'destination-out'
-        });
-        maskLayer.add(cutout);
-        maskLayer.draw();
     }
 
     function checkGameCompletion(layer) {
