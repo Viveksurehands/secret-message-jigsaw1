@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-        const decodedData = JSON.parse(decodeURIComponent(escape(atob(dataParam))));
+        const decodedData = JSON.parse(LZString.decompressFromEncodedURIComponent(dataParam));
         document.getElementById("secret-message-display").innerText = decodedData.msg;
 
         const imageObj = new Image();
