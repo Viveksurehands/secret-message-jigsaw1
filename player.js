@@ -40,13 +40,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const grid = calculateGrid(pieceCount);
         const pw = cw / grid.cols; const ph = ch / grid.rows;
 
-        // Build relative interlocking jigsaw tab maps
+        // Generate the inner interlocking structure maps
+        // xEdges stores vertical lines between columns: dimension [rows][cols - 1]
         const xEdges = Array.from({ length: grid.rows }, () => Array(grid.cols - 1).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
+        // yEdges stores horizontal lines between rows: dimension [rows - 1][cols]
         const yEdges = Array.from({ length: grid.rows - 1 }, () => Array(grid.cols).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
 
         for (let r = 0; r < grid.rows; r++) {
             for (let c = 0; c < grid.cols; c++) {
                 
+                // SECOND ADDON FIX: Enforce standard jigsaw conventions
+                // If a piece touches an outer border, its edge parameter is strictly forced to 0 (flat line)
                 const top = r === 0 ? 0 : -yEdges[r - 1][c];
                 const right = c === grid.cols - 1 ? 0 : xEdges[r][c];
                 const bottom = r === grid.rows - 1 ? 0 : yEdges[r][c];
@@ -60,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     draggable: true,
                     stroke: '#1e293b',
                     strokeWidth: 1,
-                    // FIRST ADDON FIX: Clamp the coordinates so the piece cannot exit the canvas box
+                    // Kept First Addon: Pieces stay inside the box boundaries
                     dragBoundFunc: function(pos) {
                         return {
                             x: Math.max(0, Math.min(cw - pw, pos.x)),
@@ -71,15 +75,19 @@ document.addEventListener("DOMContentLoaded", () => {
                         context.beginPath();
                         context.moveTo(0, 0);
 
+                        // Top Edge (Draws flat if r === 0)
                         if (top === 0) context.lineTo(pw, 0);
                         else drawJigsawEdge(context, 0, 0, pw, 0, top);
 
+                        // Right Edge (Draws flat if c === cols - 1)
                         if (right === 0) context.lineTo(pw, ph);
                         else drawJigsawEdge(context, pw, 0, pw, ph, right);
 
+                        // Bottom Edge (Draws flat if r === rows - 1)
                         if (bottom === 0) context.lineTo(0, ph);
                         else drawJigsawEdge(context, pw, ph, 0, ph, bottom);
 
+                        // Left Edge (Draws flat if c === 0)
                         if (left === 0) context.lineTo(0, 0);
                         else drawJigsawEdge(context, 0, ph, 0, 0, left);
 
