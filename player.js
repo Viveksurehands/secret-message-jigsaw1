@@ -32,11 +32,11 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const stage = new Konva.Stage({ container: 'canvas-container', width: cw, height: ch });
         
-        // Layer 1: Dedicated Background Text Layer (Isolated at the bottom)
-        const bgLayer = new Konva.Layer();
+        // Layer 1: Secret Text Layer (Starts completely transparent/hidden)
+        const bgLayer = new Konva.Layer({ opacity: 0 });
         const secretText = new Konva.Text({
             text: secretMessage,
-            fontSize: 28,
+            fontSize: 32,
             fontFamily: 'sans-serif',
             fontWeight: 'bold',
             fill: '#38bdf8',
@@ -48,35 +48,14 @@ document.addEventListener("DOMContentLoaded", () => {
         bgLayer.add(secretText);
         stage.add(bgLayer);
 
-        // Layer 2: Blackout Mask Layer. Custom scene rendering prevents clipping bugs.
-        const maskLayer = new Konva.Layer();
-        
-        // Track unmasked squares (initially empty)
-        const solvedBlocks = [];
-
-        const maskShape = new Konva.Shape({
-            x: 0, y: 0, width: cw, height: ch,
-            sceneFunc: function(context, shape) {
-                // Fill the background solid dark color
-                context.fillStyle = '#0f172a';
-                context.fillRect(0, 0, cw, ch);
-
-                // Clear out blocks where correct puzzle items are snapped in
-                solvedBlocks.forEach(block => {
-                    context.clearRect(block.x - 2, block.y - 2, block.w + 4, block.h + 4);
-                });
-            }
-        });
-        maskLayer.add(maskShape);
-        stage.add(maskLayer);
-
-        // Layer 3: Interactive Jigsaw Pieces
+        // Layer 2: Main Piece Gameplay interaction plane
         const pieceLayer = new Konva.Layer();
         stage.add(pieceLayer);
 
         const grid = calculateGrid(pieceCount);
         const pw = cw / grid.cols; const ph = ch / grid.rows;
 
+        // Build clean interlocking tab-blank grid maps
         const xEdges = Array.from({ length: grid.rows }, () => Array(grid.cols - 1).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
         const yEdges = Array.from({ length: grid.rows - 1 }, () => Array(grid.cols).fill(0).map(() => Math.random() > 0.5 ? 1 : -1));
 
@@ -94,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     width: pw,
                     height: ph,
                     draggable: true,
-                    stroke: '#475569',
+                    stroke: '#27272a',
                     strokeWidth: 1,
                     sceneFunc: function(context, shape) {
                         context.beginPath();
@@ -127,16 +106,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (Math.abs(piece.x() - tx) < 22 && Math.abs(piece.y() - ty) < 22) {
                         piece.position({ x: tx, y: ty });
                         piece.draggable(false);
-                        piece.strokeWidth(0); 
+                        piece.strokeWidth(0.5); // Thin clean merge borders
                         
                         piece.moveToBottom();
                         pieceLayer.draw();
-
-                        // Register the solved position coordinate and redraw mask context window safely
-                        solvedBlocks.push({ x: tx, y: ty, w: pw, h: ph });
-                        maskLayer.draw();
                         
-                        checkGameCompletion(pieceLayer);
+                        // Check if this was the final piece
+                        checkGameCompletion(pieceLayer, bgLayer);
                     }
                 });
                 pieceLayer.add(piece);
@@ -145,34 +121,56 @@ document.addEventListener("DOMContentLoaded", () => {
         pieceLayer.draw();
     }
 
+    // Smooth bezier coordinates generating balanced puzzle hooks without artifacts
     function drawJigsawEdge(ctx, x1, y1, x2, y2, direction) {
         const dx = x2 - x1; const dy = y2 - y1;
         const l = Math.sqrt(dx * dx + dy * dy);
         const nx = -dy / l; const ny = dx / l; 
-        const size = l * 0.15 * direction; 
+        const size = l * 0.14 * direction; 
 
-        const p1x = x1 + dx * 0.35; const p1y = y1 + dy * 0.35;
+        const p1x = x1 + dx * 0.38; const p1y = y1 + dy * 0.38;
         const p2x = p1x + nx * size; const p2y = p1y + ny * size;
-        const p3x = x1 + dx * 0.45; const p3y = y1 + dy * 0.45;
-        const p4x = p3x + nx * size * 1.5; const p4y = p3y + ny * size * 1.5;
-        const p5x = x1 + dx * 0.55; const p5y = y1 + dy * 0.55;
-        const p6x = p5x + nx * size * 1.5; const p6y = p5y + ny * size * 1.5;
-        const p7x = x1 + dx * 0.65; const p7y = y1 + dy * 0.65;
+        const p3x = x1 + dx * 0.44; const p3y = y1 + dy * 0.44;
+        const p4x = p3x + nx * size * 1.4; const p4y = p3y + ny * size * 1.4;
+        const p5x = x1 + dx * 0.56; const p5y = y1 + dy * 0.56;
+        const p6x = p5x + nx * size * 1.4; const p6y = p5y + ny * size * 1.4;
+        const p7x = x1 + dx * 0.62; const p7y = y1 + dy * 0.62;
         const p8x = p7x + nx * size; const p8y = p7y + ny * size;
 
         ctx.lineTo(p1x, p1y);
         ctx.bezierCurveTo(p2x, p2y, p3x, p3y, p4x, p4y);
-        ctx.bezierCurveTo(p4x + (dx*0.05), p4y + (dy*0.05), p6x - (dx*0.05), p6y - (dy*0.05), p5x + nx * size * 1.8, p5y + ny * size * 1.8);
+        ctx.bezierCurveTo(p4x + (dx*0.03), p4y + (dy*0.03), p6x - (dx*0.03), p6y - (dy*0.03), p5x + nx * size * 1.6, p5y + ny * size * 1.6);
         ctx.bezierCurveTo(p6x, p6y, p7x, p7y, p8x, p8y);
         ctx.lineTo(x2, y2);
     }
 
-    function checkGameCompletion(layer) {
-        const active = layer.getChildren(node => node.draggable() === true);
+    function checkGameCompletion(pieceLayer, bgLayer) {
+        const active = pieceLayer.getChildren(node => node.draggable() === true);
+        
+        // Trigger animations when zero draggable pieces remain
         if (active.length === 0) {
-            setTimeout(() => {
-                alert("🎉 Surprise Uncovered! You solved the puzzle completely!");
-            }, 300);
+            // Smoothly fade out the finished jigsaw image overlay
+            const fadeOutPuzzle = new Konva.Tween({
+                node: pieceLayer,
+                duration: 1.2,
+                opacity: 0,
+                easing: Konva.Easings.EaseInOut
+            });
+
+            // Smoothly fade in the background secret message text
+            const fadeInText = new Konva.Tween({
+                node: bgLayer,
+                duration: 1.2,
+                opacity: 1,
+                easing: Konva.Easings.EaseInOut,
+                onFinish: () => {
+                    alert("🎉 Surprise Uncovered! You solved the puzzle completely!");
+                }
+            });
+
+            // Play animations simultaneously
+            fadeOutPuzzle.play();
+            fadeInText.play();
         }
     }
 });
