@@ -66,18 +66,18 @@ document.addEventListener("DOMContentLoaded", () => {
         return canvas.toDataURL("image/jpeg", 0.4);
     }
 
-  function createLinkPayload(msg, imgData, pieces) {
-    const payload = { msg: msg, img: imgData, count: pieces };
-    const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-    
-    // FIX FOR VERCEL: Dynamically extracts the folder path, ignoring the file name completely
-    const currentPath = window.location.pathname;
-    const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
-    const gameUrl = `${window.location.origin}${baseDir}play.html?p=${encodedData}`;
-
-    shareableLinkInput.value = gameUrl;
-    linkOutputContainer.classList.remove("hidden");
-}
+    function createLinkPayload(msg, imgData, pieces) {
+        const payload = { msg: msg, img: imgData, count: pieces };
+        const encodedData = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+        
+        // Dynamic directory resolver that works flawlessly on local host networks and live web deployments
+        const currentPath = window.location.pathname;
+        const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
+        const gameUrl = `${window.location.origin}${baseDir}play.html?p=${encodedData}`;
+        
+        shareableLinkInput.value = gameUrl;
+        linkOutputContainer.classList.remove("hidden");
+    }
 
     document.getElementById("copy-btn").addEventListener("click", () => {
         shareableLinkInput.select();
