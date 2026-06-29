@@ -87,42 +87,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- INSTANT DIRECT SHORTENER API ---
 
-        fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)
+    
+        fetch(`https://api.tinyurl.com/create`, {
+   
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer g78h9jKLaBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890' 
+  
+            },
+  
+  
+            body: JSON.stringify({   
+                url: gameUrl,   
+                domain: "tinyurl.com"
+   
+            })
+
+        })
+
         .then(response => {  
             if (!response.ok) throw new Error("Shortener response issue");    
-            return response.text();
-   
+            return response.json();
+
         })
-   
-        .then(shortUrl => {
-    
-            // Clear any loading text and set the actual shortened link!
-   
-            shareableLinkInput.value = shortUrl.trim();
+
+        .then(data => {
+            if (data && data.data && data.data.tiny_url) {     
+                const shortUrl = data.data.tiny_url;      
+                shareableLinkInput.value = shortUrl;
         
-     
-            // Make sure the visit button points to the short link too
-      
-            if (visitBtn) { 
-                visitBtn.href = shortUrl.trim();  
-                visitBtn.style.display = "inline-block"; // Show the button now
- 
-            }
-   
-        })
-  
-        .catch(error => {
-            console.error("Shortener failed, falling back to long URL:", error);
-      
-            // Fallback to the long URL only if the API fails
        
-            shareableLinkInput.value = gameUrl;
-            if (visitBtn) {
+                if (visitBtn) {         
+                    visitBtn.href = shortUrl;          
+                    visitBtn.style.display = "inline-block"; 
+       
+                }
+   
+            } else {     
+                throw new Error("Invalid data structure received");
+  
+            }
+
+        })
+
+        .catch(error => {  
+            console.error("Shortener failed, falling back to long URL:", error);    
+            shareableLinkInput.value = gameUrl;    
+            if (visitBtn) {   
                 visitBtn.href = gameUrl;
                 visitBtn.style.display = "inline-block";
-      
-            }
     
+            }
+
         });
     }
 
