@@ -74,17 +74,38 @@ document.addEventListener("DOMContentLoaded", () => {
         const currentPath = window.location.pathname;
         const baseDir = currentPath.substring(0, currentPath.lastIndexOf('/') + 1);
         const gameUrl = `${window.location.origin}${baseDir}play.html?p=${encodedData}`;
-        
-        shareableLinkInput.value = gameUrl;
-        // --- VISIT BUTTON TRIGGER ---
+
+        // Set up the UI components immediately to show a loading state
+        shareableLinkInput.value = "Shortening link...";
+        linkOutputContainer.classList.remove("hidden");
 
         const visitBtn = document.getElementById("visit-btn");
         if (visitBtn) {
-            visitBtn.href = gameUrl;
-            visitBtn.style.display = "inline-block";
+            visitBtn.style.display = "none"; // Hide until short link is ready
         }
 
-        linkOutputContainer.classList.remove("hidden");
+        // --- AUTOMATIC LINK SHORTENER PLUGIN CODE ---
+        fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(gameUrl)}`)
+            .then(response => response.text())
+            .then(shortUrl => {
+                // Update text field with the clean, short link!
+                shareableLinkInput.value = shortUrl;
+
+                // Wire up the Visit Button to the short version
+                if (visitBtn) {
+                    visitBtn.href = shortUrl;
+                    visitBtn.style.display = "inline-block";
+                }
+            })
+            .catch(error => {
+                console.error("Shortening failed, falling back to long URL:", error);
+                // Fallback: If network drops or API fails, still give them the working long URL
+                shareableLinkInput.value = gameUrl;
+                if (visitBtn) {
+                    visitBtn.href = gameUrl;
+                    visitBtn.style.display = "inline-block";
+                }
+            });
     }
 
     document.getElementById("copy-btn").addEventListener("click", () => {
@@ -92,7 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.execCommand("copy");
         alert("Challenge Link Copied!");
     });
-    
+
     // --- DARK MODE THEME SWITCH MANAGER ---
     const themeCheckbox = document.getElementById("dark-mode-checkbox");
 
