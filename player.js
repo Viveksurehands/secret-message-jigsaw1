@@ -91,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (Math.abs(piece.x() - tx) < 22 && Math.abs(piece.y() - ty) < 22) {
                         piece.position({ x: tx, y: ty });
                         piece.draggable(false);
-                        piece.strokeWidth(0.5); // Merge cleanly when snapped
+                        piece.strokeWidth(0.5); 
                         
                         piece.moveToBottom();
                         pieceLayer.draw();
@@ -130,15 +130,15 @@ document.addEventListener("DOMContentLoaded", () => {
     function checkGameCompletion(pieceLayer) {
         const active = pieceLayer.getChildren(node => node.draggable() === true);
         
-        // Run animation the split-second no draggable pieces remain
         if (active.length === 0) {
             setTimeout(() => {
                 const canvasContainer = document.getElementById("canvas-container");
+                const messageDisplay = document.getElementById("secret-message-display");
                 
-                // Triggers the hardware-accelerated CSS opacity fade transition
+                // Perfectly synced: Fade out the puzzle overlay, fade in the hidden message text
                 canvasContainer.classList.add("fade-out-canvas");
+                messageDisplay.classList.add("reveal-text");
 
-                // Trigger a clean alert completion message after the visual fade completes
                 setTimeout(() => {
                     alert("🎉 Surprise Uncovered! You solved the puzzle completely!");
                 }, 1500);

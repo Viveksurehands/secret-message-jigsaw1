@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://unpkg.com/konva@9.3.6/konva.min.js"></script>
     <style>
-        /* Stack layout rules to keep the text hidden behind the canvas grid */
         .stage-wrapper {
             position: relative;
             width: 600px;
@@ -35,8 +34,16 @@
             font-family: sans-serif;
             font-weight: bold;
             text-align: center;
-            z-index: 1; /* Sits at the bottom layer */
+            z-index: 1; 
             word-break: break-word;
+            /* CRITICAL FIX: Keep hidden until the puzzle is fully completed */
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        /* Applied via JS when the game is won to fade the message in */
+        #secret-message-display.reveal-text {
+            opacity: 1 !important;
         }
 
         #canvas-container {
@@ -45,15 +52,14 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2; /* Sits directly on top of the text */
-            transition: opacity 1.5s ease-in-out; /* Handles the clean cinematic fade out */
+            z-index: 2; 
+            transition: opacity 1.5s ease-in-out; 
             opacity: 1;
         }
 
-        /* Class applied via JS when the game is won */
         .fade-out-canvas {
             opacity: 0 !important;
-            pointer-events: none; /* Stops interaction once faded */
+            pointer-events: none; 
         }
     </style>
 </head>
