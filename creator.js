@@ -88,58 +88,34 @@ document.addEventListener("DOMContentLoaded", () => {
         // --- INSTANT DIRECT SHORTENER API ---
 
     
-        fetch(`https://api.tinyurl.com/create`, {
-   
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer g78h9jKLaBcDeFgHiJkLmNoPqRsTuVwXyZ1234567890' 
-  
-            },
-  
-  
-            body: JSON.stringify({   
-                url: gameUrl,   
-                domain: "tinyurl.com"
-   
-            })
-
-        })
-
+      
+        // --- INSTANT DIRECT SHORTENER API (CORS PROXY FIX) ---
+        fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)}`)
         .then(response => {  
             if (!response.ok) throw new Error("Shortener response issue");    
             return response.json();
-
         })
-
         .then(data => {
-            if (data && data.data && data.data.tiny_url) {     
-                const shortUrl = data.data.tiny_url;      
+            // allorigins returns the raw response inside data.contents
+            if (data && data.contents) {
+                const shortUrl = data.contents.trim();
                 shareableLinkInput.value = shortUrl;
-        
-       
-                if (visitBtn) {         
-                    visitBtn.href = shortUrl;          
+                
+                if (visitBtn) { 
+                    visitBtn.href = shortUrl;  
                     visitBtn.style.display = "inline-block"; 
-       
                 }
-   
-            } else {     
-                throw new Error("Invalid data structure received");
-  
+            } else {
+                throw new Error("Invalid proxy response");
             }
-
         })
-
-        .catch(error => {  
-            console.error("Shortener failed, falling back to long URL:", error);    
-            shareableLinkInput.value = gameUrl;    
-            if (visitBtn) {   
+        .catch(error => {
+            console.error("Shortener failed, falling back to long URL:", error);
+            shareableLinkInput.value = gameUrl;
+            if (visitBtn) {
                 visitBtn.href = gameUrl;
                 visitBtn.style.display = "inline-block";
-    
             }
-
         });
     }
 
