@@ -92,4 +92,26 @@ document.addEventListener("DOMContentLoaded", () => {
         document.execCommand("copy");
         alert("Challenge Link Copied!");
     });
+    
+    // --- DARK MODE THEME SWITCH MANAGER ---
+    const themeCheckbox = document.getElementById("dark-mode-checkbox");
+
+    // 1. Check if dark mode was previously enabled by the user
+    if (localStorage.getItem("dark-mode") === "enabled") {
+        document.body.classList.add("dark-mode");
+        if (themeCheckbox) themeCheckbox.checked = true;
+    }
+
+    // 2. Add Event Listener to catch toggle interactions
+    if (themeCheckbox) {
+        themeCheckbox.addEventListener("change", () => {
+            if (themeCheckbox.checked) {
+                document.body.classList.add("dark-mode");
+                localStorage.setItem("dark-mode", "enabled");
+            } else {
+                document.body.classList.remove("dark-mode");
+                localStorage.setItem("dark-mode", "disabled");
+            }
+        });
+    }
 });
