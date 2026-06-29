@@ -76,6 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
         const gameUrl = `${window.location.origin}${baseDir}play.html?p=${encodedData}`;
         
         shareableLinkInput.value = gameUrl;
+        // --- VISIT BUTTON TRIGGER ---
+
+        const visitBtn = document.getElementById("visit-btn");
+        if (visitBtn) {
+            visitBtn.href = gameUrl;
+            visitBtn.style.display = "inline-block";
+        }
+
         linkOutputContainer.classList.remove("hidden");
     }
 
