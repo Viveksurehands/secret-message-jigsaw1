@@ -60,6 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     draggable: true,
                     stroke: '#1e293b',
                     strokeWidth: 1,
+                    // FIRST ADDON FIX: Clamp the coordinates so the piece cannot exit the canvas box
+                    dragBoundFunc: function(pos) {
+                        return {
+                            x: Math.max(0, Math.min(cw - pw, pos.x)),
+                            y: Math.max(0, Math.min(ch - ph, pos.y))
+                        };
+                    },
                     sceneFunc: function(context, shape) {
                         context.beginPath();
                         context.moveTo(0, 0);
@@ -135,7 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const canvasContainer = document.getElementById("canvas-container");
                 const messageDisplay = document.getElementById("secret-message-display");
                 
-                // Perfectly synced: Fade out the puzzle overlay, fade in the hidden message text
                 canvasContainer.classList.add("fade-out-canvas");
                 messageDisplay.classList.add("reveal-text");
 
