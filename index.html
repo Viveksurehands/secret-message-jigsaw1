@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a Secret Jigsaw Challenge</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="ad-slot sidebar-ad" id="ad-left-creator">
+            <p>Ad Space</p>
+        </div>
+
+        <main class="main-content">
+            <header>
+                <h1>🤫 Secret Message Jigsaw</h1>
+                <p class="subtitle">Hide a surprise message behind an interactive puzzle link</p>
+            </header>
+
+            <section class="form-card">
+                <div class="form-group">
+                    <label for="secret-message">1. Write your Secret Message:</label>
+                    <input type="text" id="secret-message" placeholder="Type the surprise here (e.g., We're going to Goa!)" maxlength="150">
+                </div>
+
+                <div class="form-group">
+                    <label>2. Choose the Puzzle Cover Style:</label>
+                    
+                    <div class="upload-box">
+                        <span class="upload-label">📸 Upload your own photo:</span>
+                        <input type="file" id="image-upload" accept="image/*">
+                    </div>
+
+                    <div class="divider"><span>OR SELECT A PRESET CHALLENGE</span></div>
+
+                    <div class="preset-grid">
+                        <button type="button" class="preset-btn" data-preset="white">🤍 Pure White</button>
+                        <button type="button" class="preset-btn" data-preset="black">🖤 Pitch Black</button>
+                        <button type="button" class="preset-btn" data-preset="illusion">🌀 Illusion Grid</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="piece-count">3. Number of Pieces:</label>
+                    <select id="piece-count">
+                        <option value="12">12 Pieces (Easy)</option>
+                        <option value="24">24 Pieces (Medium)</option>
+                        <option value="36">36 Pieces (Hard)</option>
+                        <option value="50">50 Pieces (Expert)</option>
+                    </select>
+                </div>
+
+                <button id="generate-btn" class="primary-btn">Create Surprise Link 🧩</button>
+                
+                <div id="link-output-container" class="hidden animate-fade">
+                    <label>Your Link is Ready! Share it with your friend:</label>
+                    <div class="copy-input-group">
+                        <input type="text" id="shareable-link" readonly>
+                        <button id="copy-btn">Copy</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="ad-slot sidebar-ad" id="ad-right-creator">
+            <p>Ad Space</p>
+        </div>
+    </div>
+
+    <script src="creator.js"></script>
+</body>
+</html>

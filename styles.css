@@ -1,0 +1,61 @@
+:root {
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --bg-main: #f8fafc;
+    --surface: #ffffff;
+    --border: #e2e8f0;
+    --text: #1e293b;
+    --text-light: #64748b;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; }
+body { background-color: var(--bg-main); color: var(--text); }
+
+.app-container { display: flex; justify-content: space-between; min-height: 100vh; }
+.ad-slot { background-color: #f1f5f9; display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 12px; font-weight: bold; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+.sidebar-ad { width: 160px; min-height: 600px; flex-shrink: 0; }
+
+.main-content { flex: 1; max-width: 800px; padding: 40px 20px; margin: 0 auto; text-align: center; }
+header h1 { font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; color: #0f172a; }
+.subtitle { color: var(--text-light); margin-bottom: 30px; font-size: 1.1rem; }
+
+.form-card, .game-wrapper { background: var(--surface); padding: 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+.form-group { margin-bottom: 24px; text-align: left; }
+label { display: block; font-weight: 600; margin-bottom: 10px; font-size: 0.95rem; }
+
+input[type="text"], select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; background: var(--bg-main); outline: none; }
+input[type="text"]:focus { border-color: var(--primary); background: #fff; }
+
+.upload-box { border: 2px dashed var(--border); padding: 15px; border-radius: 8px; background: var(--bg-main); }
+.upload-label { font-size: 0.9rem; font-weight: 600; display: block; margin-bottom: 5px; color: var(--text-light); }
+
+.divider { text-align: center; margin: 20px 0; position: relative; }
+.divider::before { content: ""; position: absolute; left: 0; top: 50%; width: 100%; height: 1px; background: var(--border); z-index: 1; }
+.divider span { background: var(--surface); padding: 0 15px; font-size: 0.75rem; font-weight: 700; color: var(--text-light); position: relative; z-index: 2; }
+
+.preset-grid { display: flex; gap: 10px; }
+.preset-btn { flex: 1; padding: 10px; border: 1px solid var(--border); background: var(--bg-main); border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+.preset-btn:hover { background: #e2e8f0; }
+.preset-btn.active { background: #0f172a; color: white; border-color: #0f172a; }
+
+.primary-btn { width: 100%; background: var(--primary); color: white; padding: 14px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+.primary-btn:hover { background: var(--primary-hover); }
+
+#link-output-container { margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border); text-align: left; }
+.copy-input-group { display: flex; gap: 10px; margin-top: 8px; }
+.copy-input-group input { flex: 1; font-family: monospace; font-size: 0.9rem; color: var(--text-light); }
+#copy-btn { background: #0f172a; color: white; border: none; padding: 0 20px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+/* Game Area Components */
+.game-container { position: relative; width: 600px; height: 450px; margin: 0 auto 25px auto; border-radius: 12px; overflow: hidden; background: #0f172a; border: 2px solid #0f172a; }
+#secret-reveal-layer { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 800; color: #38bdf8; text-align: center; padding: 30px; background: #0f172a; z-index: 1; word-break: break-word; }
+#canvas-container { position: absolute; width: 100%; height: 100%; z-index: 2; }
+
+.control-row { display: flex; justify-content: center; gap: 15px; }
+.secondary-btn, .nav-btn { padding: 12px 24px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 0.95rem; cursor: pointer; display: inline-block; }
+.secondary-btn { background: #cbd5e1; border: none; color: var(--text); }
+.nav-btn { background: var(--primary); color: white; }
+
+.hidden { display: none !important; }
+.animate-fade { animation: fadeIn 0.4s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
