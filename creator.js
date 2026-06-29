@@ -84,30 +84,46 @@ document.addEventListener("DOMContentLoaded", () => {
             visitBtn.style.display = "none"; // Hide until short link is ready
         }
 
- // --- INSTANT DIRECT SHORTENER API ---
-        fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Shortener response issue");
-                return response.text();
-            })
-            .then(shortUrl => {
-                // Instantly sets the clean, fast-redirect short link!
-                shareableLinkInput.value = shortUrl.trim();
 
-                if (visitBtn) {
-                    visitBtn.href = shortUrl.trim();
-                    visitBtn.style.display = "inline-block";
-                }
-            })
-            .catch(error => {
-                console.error("Shortener failed, smoothly falling back to raw URL:", error);
-                // Fallback protection so your app never breaks
-                shareableLinkInput.value = gameUrl;
-                if (visitBtn) {
-                    visitBtn.href = gameUrl;
-                    visitBtn.style.display = "inline-block";
-                }
-            });
+        // --- INSTANT DIRECT SHORTENER API ---
+
+        fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)
+        .then(response => {  
+            if (!response.ok) throw new Error("Shortener response issue");    
+            return response.text();
+   
+        })
+   
+        .then(shortUrl => {
+    
+            // Clear any loading text and set the actual shortened link!
+   
+            shareableLinkInput.value = shortUrl.trim();
+        
+     
+            // Make sure the visit button points to the short link too
+      
+            if (visitBtn) { 
+                visitBtn.href = shortUrl.trim();  
+                visitBtn.style.display = "inline-block"; // Show the button now
+ 
+            }
+   
+        })
+  
+        .catch(error => {
+            console.error("Shortener failed, falling back to long URL:", error);
+      
+            // Fallback to the long URL only if the API fails
+       
+            shareableLinkInput.value = gameUrl;
+            if (visitBtn) {
+                visitBtn.href = gameUrl;
+                visitBtn.style.display = "inline-block";
+      
+            }
+    
+        });
     }
 
     document.getElementById("copy-btn").addEventListener("click", () => {
