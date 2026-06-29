@@ -84,22 +84,24 @@ document.addEventListener("DOMContentLoaded", () => {
             visitBtn.style.display = "none"; // Hide until short link is ready
         }
 
-        // --- AUTOMATIC LINK SHORTENER PLUGIN CODE ---
-        fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(gameUrl)}`)
-            .then(response => response.text())
+ // --- INSTANT DIRECT SHORTENER API ---
+        fetch(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)
+            .then(response => {
+                if (!response.ok) throw new Error("Shortener response issue");
+                return response.text();
+            })
             .then(shortUrl => {
-                // Update text field with the clean, short link!
-                shareableLinkInput.value = shortUrl;
+                // Instantly sets the clean, fast-redirect short link!
+                shareableLinkInput.value = shortUrl.trim();
 
-                // Wire up the Visit Button to the short version
                 if (visitBtn) {
-                    visitBtn.href = shortUrl;
+                    visitBtn.href = shortUrl.trim();
                     visitBtn.style.display = "inline-block";
                 }
             })
             .catch(error => {
-                console.error("Shortening failed, falling back to long URL:", error);
-                // Fallback: If network drops or API fails, still give them the working long URL
+                console.error("Shortener failed, smoothly falling back to raw URL:", error);
+                // Fallback protection so your app never breaks
                 shareableLinkInput.value = gameUrl;
                 if (visitBtn) {
                     visitBtn.href = gameUrl;
