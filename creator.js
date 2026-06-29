@@ -90,33 +90,34 @@ document.addEventListener("DOMContentLoaded", () => {
     
       
         // --- INSTANT DIRECT SHORTENER API (CORS PROXY FIX) ---
-        fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://is.gd/create.php?format=simple&url=${encodeURIComponent(gameUrl)}`)}`)
-        .then(response => {  
-            if (!response.ok) throw new Error("Shortener response issue");    
-            return response.json();
-        })
-        .then(data => {
-            // allorigins returns the raw response inside data.contents
-            if (data && data.contents) {
-                const shortUrl = data.contents.trim();
-                shareableLinkInput.value = shortUrl;
-                
-                if (visitBtn) { 
-                    visitBtn.href = shortUrl;  
-                    visitBtn.style.display = "inline-block"; 
+     // --- CORS-COMPLIANT SHORTENER API (ULVIS) ---
+        fetch(`https://ulvis.net/api.php?url=${encodeURIComponent(gameUrl)}&private=1`)
+            .then(response => {
+                if (!response.ok) throw new Error("Shortener API rejected request");
+                return response.text();
+            })
+            .then(shortUrl => {
+                // Confirm the response actually contains a valid shortened domain URL
+                if (shortUrl && shortUrl.includes("ulvis.net")) {
+                    shareableLinkInput.value = shortUrl.trim();
+                    if (visitBtn) {
+                        visitBtn.href = shortUrl.trim();
+                        visitBtn.style.display = "inline-block";
+                    }
+                } else {
+                    throw new Error("Invalid URL signature string returned from API");
                 }
-            } else {
-                throw new Error("Invalid proxy response");
-            }
-        })
-        .catch(error => {
-            console.error("Shortener failed, falling back to long URL:", error);
-            shareableLinkInput.value = gameUrl;
-            if (visitBtn) {
-                visitBtn.href = gameUrl;
-                visitBtn.style.display = "inline-block";
-            }
-        });
+            })
+            .catch(error => {
+                console.error("Shortener failed, falling back to long URL:", error);
+                
+                // Fallback: Show the working long string so the app still functions
+                shareableLinkInput.value = gameUrl;
+                if (visitBtn) {
+                    visitBtn.href = gameUrl;
+                    visitBtn.style.display = "inline-block";
+                }
+            });
     }
 
     document.getElementById("copy-btn").addEventListener("click", () => {
